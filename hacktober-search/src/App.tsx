@@ -1,33 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
+import {searchRepositories} from './utils/Github'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  interface Repository {
+    id: number;
+    name: string;
+    description: string;
+    html_url: string;
+    // Add other properties if needed
+  }
+  
+  const [Repo, setRepo] = useState<Repository[]>([])
 
+  
+  useEffect( () => {
+  const handle =  async () => {
+    try {
+      
+      const repositories =    await searchRepositories('', 'flutter', '');
+      setRepo(repositories);
+      console.log(repositories)
+    } catch (error) {
+      console.error("Error fetching repositories:", error);
+    }
+  }
+
+  handle()
+  }, [])
   return (
+    
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    {Repo.map(repository => (
+  <div key={repository.id}>
+    <h2>{repository.name}</h2>
+    <p>{repository.description}</p>
+    <a href={repository.html_url} target="_blank" rel="noopener noreferrer">
+      View Repository
+    </a>
+  </div>
+))}
     </>
   )
 }
